@@ -12,3 +12,9 @@
 ```julia
     mittleff(α,β,z,ρ=eps())   # evaluate Mittag-Leffler function with tolerance ρ
 ```
+
+
+
+### Reference
+
+Rudolfo Gorenflo, Joulia Loutchko and Yuri Loutchko, *Computation of the Mittag-Leffler function and its derivative*,  Fract. Calc. Appl. Anal, **(2002)**

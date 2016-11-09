@@ -1,5 +1,9 @@
+VERSION >= v"0.4.0-dev+6521" && __precompile__()
+
 module MittagLeffler
 
-# package code goes here
+export mittleff
+
+include("mittag_leffler.jl")
 
 end # module

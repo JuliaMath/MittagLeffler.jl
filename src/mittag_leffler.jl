@@ -76,8 +76,12 @@ function mittleffints(α,β,z,ρ)
 end
 
 ## TODO: Do real values sometimes return complex result ?
-mittleff(α::Real,β::Real,z::Real,ρ::Real=eps()) = real(_mittleff(α,β,z,ρ))
-mittleff(α::Real,β::Real,z::Complex,ρ::Real=eps()) = _mittleff(α,β,z,ρ)
+mittlefferr(α,z,ρ) = mittlefferr(α,1,z,ρ)
+mittlefferr(α::Real,β::Real,z::Real,ρ::Real) = real(_mittleff(α,β,z,ρ))
+mittlefferr(α::Real,β::Real,z::Complex,ρ::Real) = _mittleff(α,β,z,ρ)
+
+mittleff(α,β,z) = mittlefferr(α,β,z,eps())
+mittleff(α,z) = mittlefferr(α,1,z,eps())
 
 function _mittleff(α,β,z,ρ)
     1 < α && return mittleffsum(α,β,z)

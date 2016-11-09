@@ -10,10 +10,12 @@
 
 
 ```julia
-    mittleff(α,β,z,ρ=eps())   # evaluate Mittag-Leffler function with tolerance ρ
+mittlefferr(α,β,z,ρ)   # evaluate Mittag-Leffler function with tolerance ρ
+mittlefferr(α,z,ρ)     # mittlefferr(α,1,z,ρ)
+
+mittleff(α,β,z)   # evaluate Mittag-Leffler function with tolerance eps()
+mittleff(α,z)     # mittleff(α,1,z)
 ```
-
-
 
 ### Reference
 

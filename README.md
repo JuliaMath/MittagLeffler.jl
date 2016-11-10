@@ -17,6 +17,10 @@ mittleff(α,β,z)   # evaluate Mittag-Leffler function with tolerance eps()
 mittleff(α,z)     # mittleff(α,1,z)
 ```
 
+### Bugs
+
+`mittleff` fails for some arguments. In particular those that evaluate integrals.
+
 ### Reference
 
 Rudolfo Gorenflo, Joulia Loutchko and Yuri Loutchko, *Computation of the Mittag-Leffler function and its derivative*,  Fract. Calc. Appl. Anal, **(2002)**

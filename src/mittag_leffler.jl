@@ -117,6 +117,14 @@ mittleff(α,β,z) = _mittlefferr(α,β,z,eps())
 mittleff(α,z) = _mittlefferr(α,1,z,eps())
 
 function _mittleff(α,β,z,ρ)
+    if β == 1
+        α == 1/2 && return exp(z^2)*erfc(-z)
+        α == 0 && return 1/(1-z)
+        α == 1 && return exp(z)
+        α == 2 && return cosh(sqrt(z))
+        α == 3 && return (1//3)*(exp(z^(1//3)) + 2*exp(-z^(1//3)/2) * cos(sqrt(convert(typeof(z),3))/2 * z^(1//3)))
+        α == 4 && return (1//2)*(cosh(z^(1//4)) + cos(z^(1//4)))
+    end
     az = abs(z)
     α <= 0  && throw(DomainError())
     1 < α && return mittleffsum(α,β,z)

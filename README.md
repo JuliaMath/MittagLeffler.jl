@@ -17,6 +17,10 @@ mittleff(α,β,z)   # evaluate Mittag-Leffler function with tolerance eps()
 mittleff(α,z)     # mittleff(α,1,z)
 ```
 
+Arguments must satisfy `α > 0`, `β` real, `z` real or complex, `ρ>0`.
+
+For some arguments, integrals are evaluated with `quadgk`, with no control on errors.
+
 ### Bugs
 
 `mittleff` fails for some arguments. In particular those that evaluate integrals.

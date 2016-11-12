@@ -23,7 +23,7 @@ For some arguments, integrals are evaluated with `quadgk`, with no control on er
 
 ### Bugs
 
-`mittleff` fails for some arguments. In particular those that evaluate integrals.
+`mittleff` fails for some arguments. In particular, some of those that evaluate integrals.
 
 ### Reference
 

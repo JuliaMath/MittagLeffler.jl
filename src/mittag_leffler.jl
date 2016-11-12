@@ -1,3 +1,8 @@
+## This code implements the algorithm in
+## Rudolfo Gorenflo, Joulia Loutchko and Yuri Loutchko, *Computation of the Mittag-Leffler function and its derivative*,  Fract. Calc. Appl. Anal, **(2002)**
+## Changes to the algorithm are:
+## * added some special cases.
+
 #using Cubature
 
 macro br(n)
@@ -118,17 +123,24 @@ mittleff(α,z) = _mittlefferr(α,1,z,eps())
 
 function _mittleff(α,β,z,ρ)
     if β == 1
-        α == 1/2 && return exp(z^2)*erfc(-z)
+        # if α == 1/2   # disable this. There is never an error here. But, this triggers a mysterious, untraceable bug in quadgk
+        #     res = try
+        #         exp(z^2)*erfc(-z)
+        #     catch
+        #         error("Failed in exp. erfc")
+        #     end
+        #     return res
+        # end
         α == 0 && return 1/(1-z)
         α == 1 && return exp(z)
         α == 2 && return cosh(sqrt(z))
         α == 3 && return (1//3)*(exp(z^(1//3)) + 2*exp(-z^(1//3)/2) * cos(sqrt(convert(typeof(z),3))/2 * z^(1//3)))
         α == 4 && return (1//2)*(cosh(z^(1//4)) + cos(z^(1//4)))
     end
+    z == 0 && return 1/gamma(β)    
     α <= 0  && throw(DomainError())
     az = abs(z)
     1 < α && return mittleffsum(α,β,z)
-    z == 0 && return 1/gamma(β)
     az < 1 && return mittleffsum2(α,β,z,ρ)
     az > floor(10+5*α) && return choosesum(α,β,z,ρ)
     mittleffints(α,β,z,ρ)

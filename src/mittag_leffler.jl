@@ -122,7 +122,7 @@ mittleff(α,β,z) = _mittlefferr(α,β,z,eps())
 mittleff(α,z) = _mittlefferr(α,1,z,eps())
 
 function _mittleff(α,β,z,ρ)
-    if β == 1
+#    if β == 1
         # if α == 1/2   # disable this. There is never an error here. But, this triggers a mysterious, untraceable bug in quadgk
         #     res = try
         #         exp(z^2)*erfc(-z)
@@ -131,12 +131,13 @@ function _mittleff(α,β,z,ρ)
         #     end
         #     return res
         # end
-        α == 0 && return 1/(1-z)
-        α == 1 && return exp(z)
-        α == 2 && return cosh(sqrt(z))
-        α == 3 && return (1//3)*(exp(z^(1//3)) + 2*exp(-z^(1//3)/2) * cos(sqrt(convert(typeof(z),3))/2 * z^(1//3)))
-        α == 4 && return (1//2)*(cosh(z^(1//4)) + cos(z^(1//4)))
-    end
+        # Disable these, because we would have to take care of domain errors, etc.
+        # α == 0 && return 1/(1-z)
+        # α == 1 && return exp(z)
+        # α == 2 && return cosh(sqrt(z))
+        # α == 3 && return (1//3)*(exp(z^(1//3)) + 2*exp(-z^(1//3)/2) * cos(sqrt(convert(typeof(z),3))/2 * z^(1//3)))
+        # α == 4 && return (1//2)*(cosh(z^(1//4)) + cos(z^(1//4)))
+#    end
     z == 0 && return 1/gamma(β)    
     α <= 0  && throw(DomainError())
     az = abs(z)

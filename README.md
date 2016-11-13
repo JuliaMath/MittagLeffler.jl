@@ -19,7 +19,12 @@ mittleff(α,z)     # mittleff(α,1,z)
 
 Arguments must satisfy `α > 0`, `β` real, `z` real or complex, `ρ>0`.
 
-For some arguments, integrals are evaluated with `quadgk`, with no control on errors.
+For `α<1` and/or `abs(z)<1`, accurate, series-only method are used. The series-only methods work
+with BigFloat precision for corresponding input types. Some other parameter ranges also use series
+or asymptotic methods.
+
+For some arguments, integrals are evaluated with `quadgk`, with no control on errors. Some results
+are accurate, others are not.
 
 ### Bugs
 

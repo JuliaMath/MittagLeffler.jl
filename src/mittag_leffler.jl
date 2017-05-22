@@ -3,6 +3,10 @@
 ## Changes to the algorithm are:
 ## * added some special cases.
 
+if VERSION >= v"0.6-"
+    import QuadGK: quadgk
+end
+
 #using Cubature
 
 macro br(n)

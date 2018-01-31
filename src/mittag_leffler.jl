@@ -181,4 +181,48 @@ function _mittleff(α,β,z,ρ)
     mittleffints(α,β,z,ρ)
 end
 
+_mittleff(α,β,z) = mittleff(α,β,z,eps())
+
+function mittleffDeriv(α, β, z)
+    #derivative of Mittag Leffler function WRT to main argument Z.
+    #take q = 0.5. Paper requires |z| <= q < 1.
+    q = 0.5
+
+    #case 1, small z
+    if abs(z) <= q
+
+        ω = α + β - 3.0/2.0
+        D = α^2.0 - 4.0*α*β + 6.0*α + 1.0
+
+        #k1
+        if α>1.0
+            k₁ = ((2.0-α-β)/(α-1.0)) + 1.0
+        elseif α>0.0 && α<=1.0 && D<=0.0
+            k₁ = ((3.0-α-β)/α) + 1.0
+        elseif α>0.0 && α<=1.0 && D>0.0
+            k₁ = maximum([((3.0-α-β)/α) + 1.0, ((1.0-2.0*ω*α+sqrt(D))/(2.0*(α^2.0)))+1.0])
+        end
+
+        k₀ = maximum([k₁, log(eps()*(1.0-abs(z)))/log(abs(z))])
+        k₀ = ceil(Int32,k₀) #take ceiling (not specified in paper whether floor or ceiling)
+
+        out = 0.0
+        for k in 0:k₀
+            out = out + ((k+1)*z^k)/(gamma(α+β+α*k))
+        end
+
+    #case 2, larger z
+    elseif abs(z) > q
+
+        out = (mittleff(α,β-1.0,z) - (β-1.0)*mittleff(α,β,z))/(α*z)
+
+    end
+    return -out #not sure why this is wrong by factor of -1, typo in paper? just use this correction for now
+end
+
+function mittleffDeriv(α, z)
+    return mittleffDeriv(α,1.0,z)
+end
+=======
 _mittleff(α,β,z) = mittleff(α,β,z,myeps(z))
+

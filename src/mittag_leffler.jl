@@ -232,8 +232,6 @@ end
 
 Compute mittleffderiv(α,1,z)
 """
-function mittleffderiv(α, z)
-    return mittleffDeriv(α,1,z)
-end
+mittleffderiv(α, z) = mittlefferiv(α,1,z)
 
 

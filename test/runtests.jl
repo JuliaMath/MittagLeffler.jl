@@ -15,6 +15,6 @@ myapp(x,y) = abs(x-y) < 1e-10
 myder(f,x,h) = (f(x+h/2)-f(x-h/2))/h
 
 @test myapp(myder(z -> mittleff(.4,z),.4,1e-5), mittleffderiv(.4,.4))
-
+@test abs(myder(z -> mittleff(big".4",z),big".4",BigFloat(1//10^16)) - mittleffderiv(big".4",big".4")) < 1e-32
 
 nothing

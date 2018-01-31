@@ -26,6 +26,11 @@ or asymptotic methods.
 For some arguments, integrals are evaluated with `quadgk`, with no control on errors. Some results
 are accurate, others are not.
 
+```julia
+mittleffderiv(α,β,z)   # evaluate derivative of Mittag-Leffler function
+mittleffderiv(α,z)     # mittleffderiv(α,1,z)
+```
+
 ### Bugs
 
 `mittleff` fails for some arguments. In particular, some of those that evaluate integrals.

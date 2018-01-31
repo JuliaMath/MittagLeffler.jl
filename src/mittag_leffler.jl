@@ -41,6 +41,7 @@ end
 mpow(x::Complex,y) = x^y
 mpow(x::Real,y) = x >= 0 ? x^y : Complex(x,0)^y
 
+
 function mittleffsum(α,β,z)
     @br 1
     k0 = floor(Int,α) + 1
@@ -112,8 +113,20 @@ function mittleffints(α,β,z,ρ)
     end
 end
 
+"""
+    mittlefferr(α,z,ρ)
+
+Compute mittlefferr(α,1,z,ρ).
+"""
 mittlefferr(α,z,ρ) = mittlefferr(α,1,z,ρ)
 
+
+"""
+    mittlefferr(α,β,z,ρ)
+
+Compute the Mittag-Leffler function at `z` for parameters `α,β` with
+accuracy `ρ`.
+"""
 function mittlefferr(α,β,z,ρ)
     ρ > 0 || throw(DomainError())
     _mittlefferr(α,β,z,ρ)
@@ -122,8 +135,24 @@ end
 _mittlefferr(α::Real,β::Real,z::Real,ρ::Real) = real(_mittleff(α,β,z,ρ))
 _mittlefferr(α::Real,β::Real,z::Complex,ρ::Real) = _mittleff(α,β,z,ρ)
 
-mittleff(α,β,z) = _mittlefferr(α,β,z,eps())
-mittleff(α,z) = _mittlefferr(α,1,z,eps())
+# The second definition would work for both complex and real
+myeps(x) = x |> one |> float |> eps
+myeps(x::Complex) =  x |> real |> myeps
+
+
+"""
+    mittleff(α,β,z)
+
+Compute the Mittag-Leffler function at `z` for parameters `α,β`.
+"""
+mittleff(α,β,z) = _mittlefferr(α,β,z,myeps(z))
+
+"""
+    mittleff(α,z)
+
+Compute `mittleff(α,1,z)`.
+"""
+mittleff(α,z) = _mittlefferr(α,1,z,myeps(z))
 
 function _mittleff(α,β,z,ρ)
 #    if β == 1
@@ -194,3 +223,6 @@ end
 function mittleffDeriv(α, z)
     return mittleffDeriv(α,1.0,z)
 end
+=======
+_mittleff(α,β,z) = mittleff(α,β,z,myeps(z))
+

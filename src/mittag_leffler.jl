@@ -181,4 +181,4 @@ function _mittleff(α,β,z,ρ)
     mittleffints(α,β,z,ρ)
 end
 
-_mittleff(α,β,z) = mittleff(α,β,z,eps())
+_mittleff(α,β,z) = mittleff(α,β,z,myeps(z))

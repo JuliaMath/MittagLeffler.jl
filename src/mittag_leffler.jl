@@ -232,6 +232,4 @@ end
 
 Compute mittleffderiv(α,1,z)
 """
-mittleffderiv(α, z) = mittlefferiv(α,1,z)
-
-
+mittleffderiv(α, z) = mittleffderiv(α,1,z)

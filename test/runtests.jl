@@ -12,4 +12,9 @@ myapp(x,y) = abs(x-y) < 1e-10
 # allow alpha == beta == 1  --> exp(z)
 @test myapp(mittleff(1,-2), 0.1353352832366127)
 
+myder(f,x,h) = (f(x+h/2)-f(x-h/2))/h
+
+@test myapp(myder(z -> mittleff(.4,z),.4,1e-5), mittleffderiv(.4,.4))
+
+
 nothing

@@ -3,7 +3,7 @@
 ## Changes to the algorithm are:
 ## * added some special cases.
 
-if VERSION >= v"0.6-"
+if VERSION >= v"0.5-"
     import QuadGK: quadgk
 end
 

@@ -1,6 +1,6 @@
 # MittagLeffler
 
-*Mittag-Leffler function*
+[*Mittag-Leffler function*](https://en.wikipedia.org/wiki/Mittag-Leffler_function),
 
 [![Build Status](https://travis-ci.org/jlapeyre/MittagLeffler.jl.svg?branch=master)](https://travis-ci.org/jlapeyre/MittagLeffler.jl)
 &nbsp;

@@ -1,7 +1,6 @@
-## This code implements the algorithm in
-## Rudolfo Gorenflo, Joulia Loutchko and Yuri Loutchko, *Computation of the Mittag-Leffler function and its derivative*,  Fract. Calc. Appl. Anal, **(2002)**
-## Changes to the algorithm are:
-## * added some special cases.
+## This code implements algorithms in
+## Rudolfo Gorenflo, Joulia Loutchko and Yuri Loutchko,
+## *Computation of the Mittag-Leffler function and its derivative*,  Fract. Calc. Appl. Anal, **(2002)**
 
 # When support for v0.6 is dropped, use fully qualified name
 if VERSION >= v"0.7-"
@@ -15,7 +14,7 @@ end
 
 function P(α,β,ϵ,ϕ,z)
     ω = ϕ * (1+(1-β)/α) + ϵ^(1/α) * sin(ϕ/α)
-    res = (1/(2*α*pi)) * ϵ^(1+(1-β)/α)*exp(ϵ^(1/α) * cos(ϕ/α)) * (cos(ω) + im * sin(ω))/(ϵ*exp(im*ϕ)-z)
+    return (1/(2*α*pi)) * ϵ^(1+(1-β)/α)*exp(ϵ^(1/α) * cos(ϕ/α)) * (cos(ω) + im * sin(ω))/(ϵ*exp(im*ϕ)-z)
 end
 
 if VERSION >= v"0.5-"
@@ -24,53 +23,50 @@ end
 
 ourquadgk(f,a,b) = quadgk(f,a,b; order=7)[1]
 
-Pint(α,β,ϵ,z) = ourquadgk( ϕ -> P(α,β,ϵ,ϕ,z), -α*pi, α*pi)
+Pint(α,β,ϵ,z) = ourquadgk(ϕ -> P(α,β,ϵ,ϕ,z), -α*pi, α*pi)
 
 function Kint(α,β,a,χ0,z)
-    ourquadgk(χ -> K(α,β,χ,z), a, χ0)
+    return ourquadgk(χ -> K(α,β,χ,z), a, χ0)
 end
 
 function K(α,β,χ,z)
     den = (χ^2-2*χ*z*cos(α*pi)+z^2)
-    res = (1/(α*pi)) * χ^((1-β)/α) * exp(-χ^(1/α))*( χ * sin(pi*(1-β)) - z * sin(pi*(1-β+α)))/den
+    return (1/(α*pi)) * χ^((1-β)/α) * exp(-χ^(1/α))*( χ * sin(pi*(1-β)) - z * sin(pi*(1-β+α)))/den
 end
 
 Kint(α,β,χ0,z) = Kint(α,β,0,χ0,z)
 
-mpow(x::Complex,y) = x^y
-mpow(x::Real,y) = x >= 0 ? x^y : Complex(x,0)^y
+mpow(x::Complex, y) = x^y
+mpow(x::Real, y) = x >= 0 ? x^y : Complex(x,0)^y
 
-function sum2(α,β,z,k0)
-    s = zero(z)
-    for k=1:k0
-        arg = β - α * k
-        if !( round(arg) == arg && arg < 0)
-            s += mpow(z, -k) / gamma(arg)
+# The following gymnastics are to get around the type-unstable mpow
+function sum2(α, β, z::Real, k0)
+    return z > 0 ? sum2_pos(α, β, z, k0) : sum2_neg(α, β, z, k0)
+end
+sum2(α, β, z::Complex, k0) = sum2_neg(α, β, z, k0)
+
+for funcname in (:sum2_neg, :sum2_pos)
+    local zarg
+    local stype
+    if funcname == :sum2_neg
+        zarg = :( (z + Complex(0,0) ))
+        stype = :( typeof(z + Complex(0,0) ) )
+    else
+        zarg = :z
+        stype = :( typeof(z) )
+    end
+    @eval function ($funcname)(α, β, z, k0)
+        println("------- In the func ", string($funcname))
+        s::($stype) = zero($stype)
+        for k=1:k0
+            arg = β - α * k
+            if !( round(arg) == arg && arg < 0)
+                s += ($zarg)^(-k) / gamma(arg)
+            end
         end
+        return s
     end
-    s
 end
-
-function mittleffsum(α,β,z)
-    @br 1
-    k0 = floor(Int, α) + 1
-    s = zero(z)
-    for k=0:(k0 - 1)
-        s += mittleff(α / k0, β, mpow(z, (1 / k0)) * exp(2pi * im * k/k0))
-    end
-    s / k0
-end
-
-function mittleffsum2(α,β,z,ρ)
-    @br 2
-    k0 = max(ceil(Int,(1-β)/α), ceil(Int, log(ρ*(1-abs(z)))/log(abs(z))))
-    s = zero(z)
-    for k=0:k0
-        s += z^k/gamma(β+α*k)
-    end
-    s
-end
-
 
 function choosesum(α,β,z,ρ)
     k0 = floor(Int, -log(ρ)/log(abs(z)))
@@ -81,6 +77,27 @@ function choosesum(α,β,z,ρ)
         @br 4
         return - sum2(α,β,z,k0)
     end
+end
+
+
+function mittleffsum(α, β, z)
+    @br 1
+    k0::Int = floor(Int, α) + 1
+    s = zero(z)
+    for k=0:(k0 - 1)
+        s += mittleff(α / k0, β, mpow(z, (1 // k0)) * exp(2pi * im * k / k0))
+    end
+    return s / k0
+end
+
+function mittleffsum2(α,β,z,ρ)
+    @br 2
+    k0 = max(ceil(Int,(1-β)/α), ceil(Int, log(ρ*(1-abs(z)))/log(abs(z))))
+    s = zero(z)
+    for k=0:k0
+        s += z^k/gamma(β+α*k)
+    end
+    return s
 end
 
 Pint(α,β,z) = Pint(α,β,1,z)
@@ -146,7 +163,8 @@ myeps(x::Complex) =  x |> real |> myeps
 
 Compute the Mittag-Leffler function at `z` for parameters `α,β`.
 """
-mittleff(α,β,z) = _mittlefferr(α,β,z,myeps(z))
+mittleff(α, β, z) = _mittlefferr(α,β,z,myeps(z))
+mittleff(α, β, z::Union{Integer,Complex{T}}) where {T<:Integer} = mittleff(α, β, float(z))
 
 """
     mittleff(α,z)
@@ -154,6 +172,7 @@ mittleff(α,β,z) = _mittlefferr(α,β,z,myeps(z))
 Compute `mittleff(α,1,z)`.
 """
 mittleff(α,z) = _mittlefferr(α,1,z,myeps(z))
+mittleff(α,z::Union{Integer,Complex{T}}) where {T<:Integer} = mittleff(α, float(z))
 
 function _mittleff(α,β,z,ρ)
 #    if β == 1
@@ -179,7 +198,7 @@ function _mittleff(α,β,z,ρ)
     1 < α && return mittleffsum(α,β,z)
     az < 1 && return mittleffsum2(α,β,z,ρ)
     az > floor(10+5*α) && return choosesum(α,β,z,ρ)
-    mittleffints(α,β,z,ρ)
+    return mittleffints(α,β,z,ρ)
 end
 
 _mittleff(α,β,z) = mittleff(α,β,z,myeps(z))
@@ -194,13 +213,10 @@ function mittleffderiv(α, β, z)
     #derivative of Mittag Leffler function WRT to main argument Z.
     #take q = 0.5. Paper requires |z| <= q < 1.
     q = 1//2
-
     #case 1, small z
     if abs(z) <= q
-
         ω = α + β - 3//2
         D = α^2 - 4*α*β + 6*α + 1
-
         #k1
         if α>1
             k₁ = ((2-α-β)/(α-1)) + 1
@@ -209,22 +225,16 @@ function mittleffderiv(α, β, z)
         else
             k₁ = maximum([((3-α-β)/α) + 1, ((1-2*ω*α+sqrt(D))/(2*(α^2)))+1])
         end
-
         k₀ = maximum([k₁, log(myeps(z)*(1-abs(z)))/log(abs(z))])
         k₀ = ceil(Int,k₀) #take ceiling (not specified in paper whether floor or ceiling)
-
         out = zero(z)
         for k in 0:k₀
             out = out + ((k+1)*z^k)/(gamma(α+β+α*k))
         end
-
     #case 2, larger z
     else
-
         out = (mittleff(α,β-1,z) - (β-1)*mittleff(α,β,z))/(α*z)
-
     end
-
     return out
 end
 

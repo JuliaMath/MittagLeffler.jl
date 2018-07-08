@@ -3,11 +3,10 @@
 ## Changes to the algorithm are:
 ## * added some special cases.
 
-if VERSION >= v"0.5-"
-    import QuadGK: quadgk
+# When support for v0.6 is dropped, use fully qualified name
+if VERSION >= v"0.7-"
+    import SpecialFunctions: gamma
 end
-
-#using Cubature
 
 macro br(n)
 #    esc(:(println(STDERR, "branch ", $n)))
@@ -19,13 +18,17 @@ function P(α,β,ϵ,ϕ,z)
     res = (1/(2*α*pi)) * ϵ^(1+(1-β)/α)*exp(ϵ^(1/α) * cos(ϕ/α)) * (cos(ω) + im * sin(ω))/(ϵ*exp(im*ϕ)-z)
 end
 
+if VERSION >= v"0.5-"
+    import QuadGK: quadgk
+end
+
 ourquadgk(f,a,b) = quadgk(f,a,b; order=7)[1]
-#ourquadgk(f,a,b) = hquadrature(f,a,b)[1]
-#ourquadgk(f,a,b) = pquadrature(f,a,b)[1]
 
-
-Pint(α,β,z) = Pint(α,β,1,z)
 Pint(α,β,ϵ,z) = ourquadgk( ϕ -> P(α,β,ϵ,ϕ,z), -α*pi, α*pi)
+
+function Kint(α,β,a,χ0,z)
+    ourquadgk(χ -> K(α,β,χ,z), a, χ0)
+end
 
 function K(α,β,χ,z)
     den = (χ^2-2*χ*z*cos(α*pi)+z^2)
@@ -34,20 +37,26 @@ end
 
 Kint(α,β,χ0,z) = Kint(α,β,0,χ0,z)
 
-function Kint(α,β,a,χ0,z)
-    ourquadgk(χ -> K(α,β,χ,z), a, χ0)
-end
-
 mpow(x::Complex,y) = x^y
 mpow(x::Real,y) = x >= 0 ? x^y : Complex(x,0)^y
 
+function sum2(α,β,z,k0)
+    s = zero(z)
+    for k=1:k0
+        arg = β - α * k
+        if !( round(arg) == arg && arg < 0)
+            s += mpow(z, -k) / gamma(arg)
+        end
+    end
+    s
+end
 
 function mittleffsum(α,β,z)
     @br 1
-    k0 = floor(Int,α) + 1
+    k0 = floor(Int, α) + 1
     s = zero(z)
-    for k=0:(k0-1)
-        s += mittleff(α/k0,β,mpow(z,(1/k0))*exp(2*pi*im*k/k0))
+    for k=0:(k0 - 1)
+        s += mittleff(α / k0, β, mpow(z, (1 / k0)) * exp(2pi * im * k/k0))
     end
     s / k0
 end
@@ -62,16 +71,6 @@ function mittleffsum2(α,β,z,ρ)
     s
 end
 
-function sum2(α,β,z,k0)
-    s = zero(z)
-    for k=1:k0
-        arg = β-α * k
-        if !( round(arg) == arg && arg < 0)
-            s += mpow(z,-k)/gamma(arg)
-        end
-    end
-    s
-end
 
 function choosesum(α,β,z,ρ)
     k0 = floor(Int, -log(ρ)/log(abs(z)))
@@ -83,6 +82,8 @@ function choosesum(α,β,z,ρ)
         return - sum2(α,β,z,k0)
     end
 end
+
+Pint(α,β,z) = Pint(α,β,1,z)
 
 function mittleffints(α,β,z,ρ)
     az = abs(z)

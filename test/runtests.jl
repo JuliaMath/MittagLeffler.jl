@@ -20,4 +20,7 @@ myder(f,x,h) = (f(x+h/2)-f(x-h/2))/h
 # convert z to float or complex float to avoid integer to negative power.
 @test myapp(mittleff(0.9, 0.5, 22 + 22im), -2.7808021618204008e13 - 2.8561425165239754e13im)
 
+# Test branch that calls `Pint`
+@test myapp(mittleff(0.1, 1.05, 0.9 + 0.5im), 0.17617901349590603 + 2.063981943021305im)
+
 nothing

@@ -23,8 +23,6 @@ end
 
 ourquadgk(f,a,b) = quadgk(f,a,b; order=7)[1]
 
-Pint(α,β,ϵ,z) = ourquadgk(ϕ -> P(α,β,ϵ,ϕ,z), -α*pi, α*pi)
-
 function Kint(α,β,a,χ0,z)
     return ourquadgk(χ -> K(α,β,χ,z), a, χ0)
 end
@@ -56,7 +54,6 @@ for funcname in (:sum2_neg, :sum2_pos)
         stype = :( typeof(z) )
     end
     @eval function ($funcname)(α, β, z, k0)
-        println("------- In the func ", string($funcname))
         s::($stype) = zero($stype)
         for k=1:k0
             arg = β - α * k
@@ -100,6 +97,7 @@ function mittleffsum2(α,β,z,ρ)
     return s
 end
 
+Pint(α,β,ϵ,z) = ourquadgk(ϕ -> P(α,β,ϵ,ϕ,z), -α*pi, α*pi)
 Pint(α,β,z) = Pint(α,β,1,z)
 
 function mittleffints(α,β,z,ρ)

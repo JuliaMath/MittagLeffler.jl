@@ -8,7 +8,7 @@ if VERSION >= v"0.7-"
 end
 
 macro br(n)
-#    esc(:(println(STDERR, "branch ", $n)))
+#    esc(:(println(stderr, "branch ", $n)))
     nothing
 end
 
@@ -76,7 +76,6 @@ function choosesum(α,β,z,ρ)
     end
 end
 
-
 function mittleffsum(α, β, z)
     @br 1
     k0::Int = floor(Int, α) + 1
@@ -87,11 +86,17 @@ function mittleffsum(α, β, z)
     return s / k0
 end
 
+# mittleffsum sometimes passes complex z with magnitude nearly equal to 1
+# Then k0 is astronomically high. Because the gamma function is evaluated by a call to gsl,
+# the loop is not interruptible.
+# So, we compute k0 using only the real part of k0.
+# The effect on the accuracy is not controlled.
 function mittleffsum2(α,β,z,ρ)
     @br 2
-    k0 = max(ceil(Int,(1-β)/α), ceil(Int, log(ρ*(1-abs(z)))/log(abs(z))))
+    zr = real(z)
+    k0 = max(ceil(Int,(1-β)/α), ceil(Int, log(ρ*(1-abs(zr)))/log(abs(zr))))
     s = zero(z)
-    for k=0:(k0)
+    for k=0:k0
         s += z^k/gamma(β+α*k)
     end
     return s
@@ -143,7 +148,7 @@ mittlefferr(α,z,ρ) = mittlefferr(α,1,z,ρ)
 Compute the Mittag-Leffler function at `z` for parameters `α,β` with
 accuracy `ρ`.
 """
-function mittlefferr(α,β,z,ρ)
+function mittlefferr(α,β,z,ρ::Real)
     ρ > 0 || throw(DomainError(ρ))
     _mittlefferr(α,β,z,ρ)
 end
@@ -160,9 +165,10 @@ myeps(x::Complex) =  x |> real |> myeps
 
 Compute the Mittag-Leffler function at `z` for parameters `α,β`.
 """
-mittleff(α, β, z) = _mittleff(α,β,z)
-#mittleff(α, β, z) = _mittlefferr(α,β,z,myeps(z))
+mittleff(α, β, z) = _mittleff(α, β, float(z))
 mittleff(α, β, z::Union{Integer,Complex{T}}) where {T<:Integer} = mittleff(α, β, float(z))
+
+#mittleff(α, β, z) = _mittlefferr(α,β,z,myeps(z))
 
 """
     mittleff(α,z)
@@ -170,26 +176,17 @@ mittleff(α, β, z::Union{Integer,Complex{T}}) where {T<:Integer} = mittleff(α,
 Compute `mittleff(α,1,z)`.
 """
 mittleff(α, z) = _mittleff(α,1,z)
-mittleff(α, z::Union{Integer,Complex{T}}) where {T<:Integer} = mittleff(α, float(z))
+#mittleff(α, z::Union{Integer,Complex{T}}) where {T<:Integer} = mittleff(α, float(z))
 
 function _mittleff_special_beta_one(α,z)
     z == 0 && return one(z)
     α == 1/2 && return exp(z^2)*erfc(-z)
     α == 0 && return 1/(1-z)  # FIXME needs domain check
     α == 1 && return exp(z)
-    zc = isreal(z) && z < 0 ? complex(z) : z # Julia sometimes requires explicit complex numbers for efficiency
+    zc = isa(z, Real) && z < 0 ? complex(z) : z # Julia sometimes requires explicit complex numbers for efficiency
     α == 2 && return cosh(sqrt(zc))
     α == 3 && return (1//3)*(exp(zc^(1//3)) + 2*exp(-zc^(1//3)/2) * cos(sqrt(convert(typeof(zc),3))/2 * zc^(1//3)))
     α == 4 && return (1//2)*(cosh(zc^(1//4)) + cos(zc^(1//4)))
-    return nothing
-end
-
-# This tries to use small unions in an efficient way, but does not.
-# It adds at least 10 ns
-# So, we do not use it at the moment.
-function _mittleff_no_eps(α, β, z)
-    z == 0 && return 1/gamma(β)
-    1 < α && return mittleffsum(α,β,z)
     return nothing
 end
 
@@ -211,7 +208,7 @@ function _mittleff0(α, β, z)
     z == 0 && return 1/gamma(β)
     if β == 2
         α == 1 && return (exp(z) - 1)/z
-        zc = z < 0 ? complex(z) : z
+        zc = isreal(z) && z < 0 ? complex(z) : z
         α == 2 && return sinh(sqrt(zc))/sqrt(zc)
     end
     1 < α && return mittleffsum(α,β,z)

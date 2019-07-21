@@ -4,11 +4,11 @@
 
 # When support for v0.6 is dropped, use fully qualified name
 if VERSION >= v"0.7-"
-    import SpecialFunctions: gamma
+    import SpecialFunctions: gamma, erfc
 end
 
 macro br(n)
-#    esc(:(println(STDERR, "branch ", $n)))
+#    esc(:(println(stderr, "branch ", $n)))
     nothing
 end
 
@@ -76,7 +76,6 @@ function choosesum(α,β,z,ρ)
     end
 end
 
-
 function mittleffsum(α, β, z)
     @br 1
     k0::Int = floor(Int, α) + 1
@@ -87,9 +86,15 @@ function mittleffsum(α, β, z)
     return s / k0
 end
 
+# mittleffsum sometimes passes complex z with magnitude nearly equal to 1
+# Then k0 is astronomically high. Because the gamma function is evaluated by a call to gsl,
+# the loop is not interruptible.
+# So, we compute k0 using only the real part of k0.
+# The effect on the accuracy is not controlled.
 function mittleffsum2(α,β,z,ρ)
     @br 2
-    k0 = max(ceil(Int,(1-β)/α), ceil(Int, log(ρ*(1-abs(z)))/log(abs(z))))
+    zr = real(z)
+    k0 = max(ceil(Int,(1-β)/α), ceil(Int, log(ρ*(1-abs(zr)))/log(abs(zr))))
     s = zero(z)
     for k=0:k0
         s += z^k/gamma(β+α*k)
@@ -143,64 +148,84 @@ mittlefferr(α,z,ρ) = mittlefferr(α,1,z,ρ)
 Compute the Mittag-Leffler function at `z` for parameters `α,β` with
 accuracy `ρ`.
 """
-function mittlefferr(α,β,z,ρ)
-    ρ > 0 || throw(DomainError())
+function mittlefferr(α,β,z,ρ::Real)
+    ρ > 0 || throw(DomainError(ρ))
     _mittlefferr(α,β,z,ρ)
 end
 
-_mittlefferr(α::Real,β::Real,z::Real,ρ::Real) = real(_mittleff(α,β,z,ρ))
-_mittlefferr(α::Real,β::Real,z::Complex,ρ::Real) = _mittleff(α,β,z,ρ)
+_mittlefferr(α::Real, β::Real, z::Real, ρ::Real) = real(_mittleff(α, β, z, ρ))
+_mittlefferr(α::Real, β::Real, z::Complex, ρ::Real) = _mittleff(α, β, z, ρ)
 
 # The second definition would work for both complex and real
 myeps(x) = x |> one |> float |> eps
 myeps(x::Complex) =  x |> real |> myeps
-
 
 """
     mittleff(α,β,z)
 
 Compute the Mittag-Leffler function at `z` for parameters `α,β`.
 """
-mittleff(α, β, z) = _mittlefferr(α,β,z,myeps(z))
+mittleff(α, β, z) = _mittleff(α, β, float(z))
 mittleff(α, β, z::Union{Integer,Complex{T}}) where {T<:Integer} = mittleff(α, β, float(z))
+
+#mittleff(α, β, z) = _mittlefferr(α,β,z,myeps(z))
 
 """
     mittleff(α,z)
 
 Compute `mittleff(α,1,z)`.
 """
-mittleff(α,z) = _mittlefferr(α,1,z,myeps(z))
-mittleff(α,z::Union{Integer,Complex{T}}) where {T<:Integer} = mittleff(α, float(z))
+mittleff(α, z) = _mittleff(α,1,z)
+#mittleff(α, z::Union{Integer,Complex{T}}) where {T<:Integer} = mittleff(α, float(z))
 
-function _mittleff(α,β,z,ρ)
-#    if β == 1
-        # if α == 1/2   # disable this. There is never an error here. But, this triggers a mysterious, untraceable bug in quadgk
-        #     res = try
-        #         exp(z^2)*erfc(-z)
-        #     catch
-        #         error("Failed in exp. erfc")
-        #     end
-        #     return res
-        # end
-        # Disable these, because we would have to take care of domain errors, etc.
-        # α == 0 && return 1/(1-z)
-        # α == 1 && return exp(z)
-        # α == 2 && return cosh(sqrt(z))
-        # α == 3 && return (1//3)*(exp(z^(1//3)) + 2*exp(-z^(1//3)/2) * cos(sqrt(convert(typeof(z),3))/2 * z^(1//3)))
-        # α == 4 && return (1//2)*(cosh(z^(1//4)) + cos(z^(1//4)))
-#    end
-    z == 0 && return 1/gamma(β)
-    α == 1 && β == 1 && return(exp(z))
-    α < 0  && throw(DomainError())
+function _mittleff_special_beta_one(α,z)
+    z == 0 && return one(z)
+    α == 1/2 && return exp(z^2)*erfc(-z)
+    α == 0 && return 1/(1-z)  # FIXME needs domain check
+    α == 1 && return exp(z)
+    zc = isa(z, Real) && z < 0 ? complex(z) : z # Julia sometimes requires explicit complex numbers for efficiency
+    α == 2 && return cosh(sqrt(zc))
+    α == 3 && return (1//3)*(exp(zc^(1//3)) + 2*exp(-zc^(1//3)/2) * cos(sqrt(convert(typeof(zc),3))/2 * zc^(1//3)))
+    α == 4 && return (1//2)*(cosh(zc^(1//4)) + cos(zc^(1//4)))
+    return nothing
+end
+
+function _mittleff_slow_with_eps(α, β, z, ρ)
     az = abs(z)
-    1 < α && return mittleffsum(α,β,z)
     az < 1 && return mittleffsum2(α,β,z,ρ)
     az > floor(10+5*α) && return choosesum(α,β,z,ρ)
     return mittleffints(α,β,z,ρ)
 end
 
-_mittleff(α,β,z) = mittleff(α,β,z,myeps(z))
+_mittleff(α::Real, β::Real, z::Real) = real(_mittleff0(α, β, z))
+_mittleff(α, β, z) = _mittleff0(α, β, z)
 
+function _mittleff0(α, β, z)
+    if β == 1
+        res = _mittleff_special_beta_one(α,z)
+        res != nothing && return res
+    end
+    z == 0 && return 1/gamma(β)
+    if β == 2
+        α == 1 && return (exp(z) - 1)/z
+        zc = isreal(z) && z < 0 ? complex(z) : z
+        α == 2 && return sinh(sqrt(zc))/sqrt(zc)
+    end
+    1 < α && return mittleffsum(α,β,z)
+    ρ = myeps(z)
+    return _mittleff_slow_with_eps(α, β, z, ρ)
+end
+
+function _mittleff(α,β,z,ρ)
+    if β == 1
+        res = _mittleff_special_beta_one(α,z)
+        res != nothing && return res
+    end
+    z == 0 && return 1/gamma(β)
+    α == 1 && β == 1 && return(exp(z))
+    1 < α && return mittleffsum(α,β,z)
+    return _mittleff_slow_with_eps(α, β, z, ρ)
+end
 
 """
     mittleffderiv(α,β,z)

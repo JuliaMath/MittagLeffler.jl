@@ -17,6 +17,7 @@ end
     @test isapprox(mittleff(0.9, 0.5, 22 + 22im), -2.7808021618204008e13 - 2.8561425165239754e13im)
     # Test branch that calls `Pint`
     @test isapprox(mittleff(0.1, 1.05, 0.9 + 0.5im), 0.17617901349590603 + 2.063981943021305im)
+    @test isapprox(mittleff(4.1,1), 1.0358176744122032)
 end
 
 @testset "derivative" begin

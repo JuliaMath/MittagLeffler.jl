@@ -180,13 +180,15 @@ mittleff(α, z) = _mittleff(α,1,z)
 
 function _mittleff_special_beta_one(α,z)
     z == 0 && return one(z)
-    α == 1/2 && return exp(z^2)*erfc(-z)
+    if α == 1/2 && abs(z) < 10
+        return exp(z^2) * erfc(-z)
+    end
     α == 0 && return 1/(1-z)  # FIXME needs domain check
     α == 1 && return exp(z)
     zc = isa(z, Real) && z < 0 ? complex(z) : z # Julia sometimes requires explicit complex numbers for efficiency
     α == 2 && return cosh(sqrt(zc))
-    α == 3 && return (1//3)*(exp(zc^(1//3)) + 2*exp(-zc^(1//3)/2) * cos(sqrt(convert(typeof(zc),3))/2 * zc^(1//3)))
-    α == 4 && return (1//2)*(cosh(zc^(1//4)) + cos(zc^(1//4)))
+    α == 3 && return (1//3) * (exp(zc^(1//3)) + 2 * exp(-zc^(1//3)/2) * cos(sqrt(convert(typeof(zc),3))/2 * zc^(1//3)))
+    α == 4 && return (1//2) * (cosh(zc^(1//4)) + cos(zc^(1//4)))
     return nothing
 end
 

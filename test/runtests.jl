@@ -26,3 +26,6 @@ end
     @test abs(myder(z -> mittleff(big".4",z),big".4",BigFloat(1//10^16)) - mittleffderiv(big".4",big".4")) < 1e-32
 end
 
+@testset "issue #8" begin
+    @test isapprox(mittleff(0.5, 1, -12), 0.046854221014893775)
+end

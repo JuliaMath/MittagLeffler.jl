@@ -2,8 +2,8 @@
 
 [*Mittag-Leffler function*](https://en.wikipedia.org/wiki/Mittag-Leffler_function),
 
-[![Build Status](https://github.com/jlapeyre/MittagLeffler.jl/actions/workflows/CI.yml/badge.svg?branch=master)](https://github.com/jlapeyre/MittagLeffler.jl/actions/workflows/CI.yml?query=branch%3Amaster)
-[![Coverage](https://codecov.io/gh/jlapeyre/MittagLeffler.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/jlapeyre/MittagLeffler.jl)
+[![Build Status](https://github.com/JuliaMath/MittagLeffler.jl/actions/workflows/CI.yml/badge.svg?branch=master)](https://github.com/JuliaMath/MittagLeffler.jl/actions/workflows/CI.yml?query=branch%3Amaster)
+[![Coverage](https://codecov.io/gh/JuliaMath/MittagLeffler.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/JuliaMath/MittagLeffler.jl)
 [![Aqua QA](https://raw.githubusercontent.com/JuliaTesting/Aqua.jl/master/badge.svg)](https://github.com/JuliaTesting/Aqua.jl)
 [![JET QA](https://img.shields.io/badge/JET.jl-%E2%9C%88%EF%B8%8F-%23aa4444)](https://github.com/aviatesk/JET.jl)
 

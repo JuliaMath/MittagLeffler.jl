@@ -2,13 +2,10 @@
 
 [*Mittag-Leffler function*](https://en.wikipedia.org/wiki/Mittag-Leffler_function),
 
-[![Build Status](https://travis-ci.org/jlapeyre/MittagLeffler.jl.svg?branch=master)](https://travis-ci.org/jlapeyre/MittagLeffler.jl)
-&nbsp;
-Windows: [![Build Status](https://ci.appveyor.com/api/projects/status/github/jlapeyre/MittagLeffler.jl?branch=master&svg=true)](https://ci.appveyor.com/project/jlapeyre/mittagleffler-jl)
-&nbsp; &nbsp; &nbsp;
-[![Coverage Status](https://coveralls.io/repos/jlapeyre/MittagLeffler.jl/badge.svg?branch=master&service=github)](https://coveralls.io/github/jlapeyre/MittagLeffler.jl?branch=master)
-[![codecov.io](http://codecov.io/github/jlapeyre/MittagLeffler.jl/coverage.svg?branch=master)](http://codecov.io/github/jlapeyre/MittagLeffler.jl?branch=master)
-
+[![Build Status](https://github.com/jlapeyre/MittagLeffler.jl/actions/workflows/CI.yml/badge.svg?branch=master)](https://github.com/jlapeyre/MittagLeffler.jl/actions/workflows/CI.yml?query=branch%3Amaster)
+[![Coverage](https://codecov.io/gh/jlapeyre/MittagLeffler.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/jlapeyre/MittagLeffler.jl)
+[![Aqua QA](https://raw.githubusercontent.com/JuliaTesting/Aqua.jl/master/badge.svg)](https://github.com/JuliaTesting/Aqua.jl)
+[![JET QA](https://img.shields.io/badge/JET.jl-%E2%9C%88%EF%B8%8F-%23aa4444)](https://github.com/aviatesk/JET.jl)
 
 ```julia
 mittlefferr(α,β,z,ρ)   # evaluate Mittag-Leffler function with tolerance ρ

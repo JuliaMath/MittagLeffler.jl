@@ -1,6 +1,11 @@
 using MittagLeffler
 using Test
 
+include("aqua_test.jl")
+if VERSION >= v"1.7"
+    include("jet_test.jl")
+end
+
 @testset "mittleff" begin
     @test isapprox(mittleff(0.5, 0.5, 0.5),  1.5403698281390346)
     @test isapprox(mittleff(1.5, 0.5, 0.5), 1.1448466286155243)

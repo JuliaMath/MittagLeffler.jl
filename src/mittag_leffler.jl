@@ -17,11 +17,12 @@ function P(α,β,ϵ,ϕ,z)
     return (1/(2*α*pi)) * ϵ^(1+(1-β)/α)*exp(ϵ^(1/α) * cos(ϕ/α)) * (cos(ω) + im * sin(ω))/(ϵ*exp(im*ϕ)-z)
 end
 
-if VERSION >= v"0.5-"
-    import QuadGK: quadgk
-end
+import QuadGK: quadgk
 
-ourquadgk(f,a,b) = quadgk(f,a,b; order=7)[1]
+function ourquadgk(f,a,b)
+    (res, err) = quadgk(f,a,b; order=17)
+    return res
+end
 
 function Kint(α,β,a,χ0,z)
     return ourquadgk(χ -> K(α,β,χ,z), a, χ0)
@@ -166,7 +167,7 @@ myeps(x::Complex) =  x |> real |> myeps
 Compute the Mittag-Leffler function at `z` for parameters `α,β`.
 """
 mittleff(α, β, z) = _mittleff(α, β, float(z))
-mittleff(α, β, z::Union{Integer,Complex{T}}) where {T<:Integer} = mittleff(α, β, float(z))
+mittleff(α, β, z::Union{Integer,Complex{<:Integer}}) = mittleff(α, β, float(z))
 
 #mittleff(α, β, z) = _mittlefferr(α,β,z,myeps(z))
 

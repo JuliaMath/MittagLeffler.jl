@@ -3,6 +3,12 @@ using Aqua: Aqua
 
 const ThePackage = MittagLeffler
 
+if VERSION >= v"1.1"
+    @testset "aqua piracy" begin
+        Aqua.test_piracy(ThePackage)
+    end
+end
+
 @testset "aqua deps compat" begin
     Aqua.test_deps_compat(ThePackage)
 end
@@ -24,10 +30,6 @@ end
 # that make no sense.
 @testset "aqua test ambiguities" begin
     Aqua.test_ambiguities([ThePackage, Core, Base])
-end
-
-@testset "aqua piracy" begin
-    Aqua.test_piracy(ThePackage)
 end
 
 @testset "aqua project extras" begin

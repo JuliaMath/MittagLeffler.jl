@@ -28,7 +28,8 @@ end
 @testset "derivative" begin
     myder(f,x,h) = (f(x+h/2)-f(x-h/2))/h
     @test isapprox(myder(z -> mittleff(.4,z),.4,1e-5), mittleffderiv(.4,.4))
-    @test abs(myder(z -> mittleff(big".4",z),big".4",BigFloat(1//10^16)) - mittleffderiv(big".4",big".4")) < 1e-32
+    _eps = Int == Int32 ? 1e-18 : 1e-32
+    @test abs(myder(z -> mittleff(big".4",z),big".4",BigFloat(1//10^16)) - mittleffderiv(big".4",big".4")) < _eps
 end
 
 @testset "issue #8" begin

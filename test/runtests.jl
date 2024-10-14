@@ -2,7 +2,7 @@ using MittagLeffler
 using Test
 
 include("aqua_test.jl")
-if VERSION >= v"1.7" && <= v"1.10"
+if VERSION >= v"1.7" && VERSION <= v"1.10"
     include("jet_test.jl")
 end
 

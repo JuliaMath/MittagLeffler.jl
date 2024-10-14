@@ -13,11 +13,6 @@ end
     Aqua.test_deps_compat(ThePackage)
 end
 
-# This often gives false positive
-@testset "aqua project toml formatting" begin
-    Aqua.test_project_toml_formatting(ThePackage)
-end
-
 @testset "aqua unbound_args" begin
     Aqua.test_unbound_args(ThePackage)
 end

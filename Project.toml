@@ -1,7 +1,7 @@
 name = "MittagLeffler"
 uuid = "9c257583-4f8f-53fd-abd9-c69d5080dd54"
 license = "MIT"
-version = "0.2.1"
+version = "1.0.0"
 
 [deps]
 QuadGK = "1fd47b50-473d-5c70-9696-f719f8f3bcdc"

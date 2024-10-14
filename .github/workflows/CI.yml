@@ -18,7 +18,12 @@ jobs:
       fail-fast: false
       matrix:
         version:
-          - 'nightly'
+# I have not found a way to exclude nightly from using JET
+# If JET appears in Project.toml, CI for nightly will fail even if the JET
+# tests are excluded for nightly.
+# Bottom line: We can test some versions with JET. Or we can test nightly. But we can't do both.
+# Unless there is some workaround I don't know about.
+#          - 'nightly'
           - '1.10'
           - '1'
         os:

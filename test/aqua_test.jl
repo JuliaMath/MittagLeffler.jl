@@ -4,8 +4,8 @@ using Aqua: Aqua
 const ThePackage = MittagLeffler
 
 if VERSION >= v"1.1"
-    @testset "aqua piracy" begin
-        Aqua.test_piracy(ThePackage)
+    @testset "aqua piracies" begin
+        Aqua.test_piracies(ThePackage)
     end
 end
 
